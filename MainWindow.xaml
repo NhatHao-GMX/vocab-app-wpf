@@ -1,7 +1,7 @@
 <Window x:Class="VocabAPPGUI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Master ! It's time for learning bi*ch" Height="550" Width="450"
+        Title="Master ! It's time for learning." Height="550" Width="450"
         WindowStartupLocation="CenterScreen" Background="#F7F7F7">
 
     <Grid Margin="20">
