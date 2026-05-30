@@ -1,17 +1,112 @@
-﻿<Window x:Class="VocabAPPGUI.MainWindow"
+<Window x:Class="VocabAPPGUI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:VocabAPPGUI"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="206*"/>
-            <ColumnDefinition Width="87*"/>
-            <ColumnDefinition Width="507*"/>
-        </Grid.ColumnDefinitions>
+        Title="Master ! It's time for learning bi*ch" Height="550" Width="450"
+        WindowStartupLocation="CenterScreen" Background="#F7F7F7">
 
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,10">
+            <TextBlock Text="🔥" FontSize="18" Margin="0,0,5,0"/>
+            <TextBlock x:Name="txtStreak" Text="Chuỗi: 0" FontSize="16" FontWeight="Bold" Foreground="#FF9600" Margin="0,0,5,0"/>
+            <TextBlock Text="|" FontSize="16" FontWeight="Bold" Foreground="#AFAFAF" Margin="5,0,5,0"/>
+            <TextBlock Text="📋" FontSize="18" Margin="5,0,5,0"/>
+            <TextBlock x:Name="txtProgress" Text="Tiến độ: 0/0" FontSize="16" FontWeight="Bold" Foreground="#E5A900"/>
+        </StackPanel>
+
+        <Border x:Name="borderForgotBanner" Grid.Row="1" Background="#FEEBEE" CornerRadius="10" Padding="10,8" Margin="0,0,0,15" Visibility="Collapsed">
+            <TextBlock x:Name="txtForgotBanner" Text="❌ Có 0 từ chưa thuộc cần sửa sai cuối bài!" FontSize="13" FontWeight="Bold" Foreground="#EA2B2B" HorizontalAlignment="Center"/>
+        </Border>
+
+        <Border Grid.Row="2" Background="White" CornerRadius="20" BorderBrush="#E5E5E5" BorderThickness="2" Padding="20">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock x:Name="txtWord" Text="Loading..." Grid.Row="0"
+                           HorizontalAlignment="Center" Margin="0,20,0,5"
+                           FontSize="32" FontWeight="Bold" Foreground="#3C3C3C"/>
+
+                <StackPanel x:Name="panelInfo" Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,20">
+                    <TextBlock x:Name="txtIpa" Text="/.../" FontSize="14" Foreground="#777777" Margin="0,0,10,0"/>
+                    <Border Background="#E1F5FE" CornerRadius="5" Padding="5,2">
+                        <TextBlock x:Name="txtPos" Text="pos" FontSize="13" Foreground="#1CB0F6"/>
+                    </Border>
+                </StackPanel>
+
+                <Button x:Name="btnShowMeaning" Grid.Row="2" Background="#F1F1F1" BorderThickness="0" Cursor="Hand">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="15"/>
+                        </Style>
+                    </Button.Resources>
+                    <TextBlock x:Name="txtMeaning" Text="Bấm để xem nghĩa tiếng Việt" 
+                               FontSize="16" FontWeight="SemiBold" Foreground="#555555" 
+                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                               TextWrapping="Wrap" TextAlignment="Center" Margin="10"/>
+                </Button>
+
+                <TextBlock x:Name="txtExample" Text="Ví dụ: ..." Grid.Row="3"
+                           HorizontalAlignment="Center" Margin="0,20,0,10"
+                           FontSize="14" Foreground="#4B4B4B" TextWrapping="Wrap" TextAlignment="Center"/>
+            </Grid>
+        </Border>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
+            <Button x:Name="btnCorrect" Content="NHỚ RÕ 🎉" Width="140" Height="45" Margin="0,0,15,0"
+                    Background="#58CC02" Foreground="White" FontSize="14" FontWeight="Bold" BorderThickness="0">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="12"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+
+            <Button x:Name="btnIncorrect" Content="QUÊN RỒI 😢" Width="140" Height="45" Margin="0,0,15,0"
+                    Background="#EA2B2B" Foreground="White" FontSize="14" FontWeight="Bold" BorderThickness="0">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="12"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+
+            <Button x:Name="btnRestart" Content="ÔN LẠI 🔄" Width="140" Height="45" Margin="0,0,15,0"
+                    Background="#1CB0F6" Foreground="White" FontSize="14" FontWeight="Bold" BorderThickness="0" Visibility="Collapsed">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="12"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+
+            <Button x:Name="btnExit" Content="TẮT APP 🚪" Width="140" Height="45" Margin="0,0,15,0"
+                    Background="#777777" Foreground="White" FontSize="14" FontWeight="Bold" BorderThickness="0" Visibility="Collapsed">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="12"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+
+            <Button x:Name="btnManage" Content="⚙️" Width="45" Height="45"
+                    Background="#1CB0F6" Foreground="White" FontSize="16" FontWeight="Bold" BorderThickness="0">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="12"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+        </StackPanel>
     </Grid>
 </Window>
