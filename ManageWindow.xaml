@@ -53,7 +53,7 @@
 					<TextBox x:Name="txtExample" Height="30" Padding="5,2" VerticalContentAlignment="Center"/>
 				</StackPanel>
 
-				<StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,5,5">
+				<StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,15,5,5">
 					<Button x:Name="btnAdd" Content="THÊM MỚI ➕" Width="110" Height="35" Background="#58CC02" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,8,0">
 						<Button.Resources>
 							<Style TargetType="Border">
