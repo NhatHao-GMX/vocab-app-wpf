@@ -1,180 +1,193 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows;
-using System.Windows.Controls;
 using VocabApp.Data;
 using VocabApp.Models;
 
 namespace VocabAPPGUI
 {
-    public partial class ManageWindow : Window
+    public partial class MainWindow : Window
     {
         private Database _db;
-        private int _selectedWordId = -1;
+        private List<dynamic> _dueWords;
+        private int _currentIndex = 0;
+        private bool _isMeaningShown = false;
+        private dynamic _currentWord;
 
-        public ManageWindow()
+        // Quản lý Danh sách lỗi và Chuỗi streak
+        private List<string> _forgottenWords;
+        private int _sessionStreak = 0;
+
+        public MainWindow()
         {
             InitializeComponent();
             _db = new Database();
+            _forgottenWords = new List<string>();
 
-            // Đấu dây sự kiện cho các nút bấm
-            btnAdd.Click += BtnAdd_Click;
-            btnUpdate.Click += BtnUpdate_Click;
-            btnDelete.Click += BtnDelete_Click;
-            btnClear.Click += BtnClear_Click;
+            // Gán sự kiện cho các nút bấm
+            btnShowMeaning.Click += BtnShowMeaning_Click;
+            btnCorrect.Click += BtnCorrect_Click;
+            btnIncorrect.Click += BtnIncorrect_Click;
+            btnManage.Click += BtnManage_Click;
+            btnRestart.Click += BtnRestart_Click;
+            btnExit.Click += BtnExit_Click;
 
-            // 📁 ĐẤU DÂY CHO NÚT CHÈN FILE MỚI Ở ĐÂY NÈ CẬU
-            btnImportFile.Click += BtnImportFile_Click;
-
-            RefreshGrid();
+            LoadWords();
         }
 
-        private void RefreshGrid()
+        private void LoadWords()
         {
             try
             {
-                var allWords = _db.GetAllWords();
-                dgWords.ItemsSource = allWords;
+                var words = _db.GetDueWords();
+                _dueWords = new List<dynamic>();
+                foreach (var w in words)
+                {
+                    _dueWords.Add(w);
+                }
+
+                _currentIndex = 0;
+                _sessionStreak = 0;
+                _forgottenWords.Clear();
+
+                // Trả UI về trạng thái ban đầu
+                txtStreak.Text = $"Chuỗi: {_sessionStreak}";
+                borderForgotBanner.Visibility = Visibility.Collapsed;
+                panelInfo.Visibility = Visibility.Visible;
+                btnCorrect.Visibility = Visibility.Visible;
+                btnIncorrect.Visibility = Visibility.Visible;
+                btnRestart.Visibility = Visibility.Collapsed;
+                btnExit.Visibility = Visibility.Collapsed;
+
+                ShowCurrentWord();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Không thể tải danh sách từ vựng: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Lỗi cơ sở dữ liệu: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
-        private void DgWords_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void ShowCurrentWord()
         {
-            if (dgWords.SelectedItem is Word selectedWord)
+            // XỬ LÝ MÀN HÌNH KẾT THÚC BÀI HỌC
+            if (_dueWords == null || _dueWords.Count == 0 || _currentIndex >= _dueWords.Count)
             {
-                _selectedWordId = selectedWord.Id;
+                txtWord.Text = "HẾT TỪ! 🎉";
+                panelInfo.Visibility = Visibility.Collapsed; // Ẩn IPA và loại từ
+                txtExample.Text = "";
 
-                txtEnglish.Text = selectedWord.English;
-                txtIpa.Text = selectedWord.Ipa;
-                txtPos.Text = selectedWord.PartOfSpeech;
-                txtVietnamese.Text = selectedWord.Vietnamese;
-                txtExample.Text = selectedWord.Example;
-            }
-        }
+                // Hiện thông báo tổng kết trước, click vào ô này sẽ đổi thành "Tạm Biệt"
+                string finishMessage = "Chúc mừng! Bạn đã hoàn thành xuất sắc phiên học từ vựng.";
+                if (_forgottenWords.Count > 0)
+                {
+                    finishMessage += $"\n\nBạn đã sửa sai thành công {_forgottenWords.Count} từ chưa thuộc:\n" + string.Join(", ", _forgottenWords);
+                }
+                txtMeaning.Text = finishMessage;
 
-        private void BtnAdd_Click(object sender, RoutedEventArgs e)
-        {
-            if (string.IsNullOrWhiteSpace(txtEnglish.Text) || string.IsNullOrWhiteSpace(txtVietnamese.Text))
-            {
-                MessageBox.Show("Vui lòng điền tối thiểu Từ tiếng Anh và Nghĩa tiếng Việt!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                // THAY ĐỔI HỆ THỐNG NÚT BẤM THÀNH: ÔN LẠI HOẶC TẮT APP
+                btnCorrect.Visibility = Visibility.Collapsed;
+                btnIncorrect.Visibility = Visibility.Collapsed;
+                btnRestart.Visibility = Visibility.Visible;
+                btnExit.Visibility = Visibility.Visible;
+
+                txtProgress.Text = $"Tiến độ: {_dueWords.Count}/{_dueWords.Count}";
                 return;
             }
 
-            try
-            {
-                string eng = txtEnglish.Text.Trim();
-                string ipa = txtIpa.Text.Trim();
-                string pos = txtPos.Text.Trim();
-                string viet = txtVietnamese.Text.Trim();
-                string ex = txtExample.Text.Trim();
+            _currentWord = _dueWords[_currentIndex];
 
-                _db.AddWord(eng, ipa, pos, viet, ex);
-                MessageBox.Show("Thêm từ vựng thành công!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+            // Hiển thị tiến độ thực tế
+            txtProgress.Text = $"Tiến độ: {_currentIndex + 1}/{_dueWords.Count}";
 
-                ClearInputs();
-                RefreshGrid();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi khi thêm từ: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            txtWord.Text = _currentWord.English;
+            txtIpa.Text = _currentWord.Ipa;
+            txtPos.Text = $"{_currentWord.PartOfSpeech}";
+            txtExample.Text = $"Ví dụ: {_currentWord.Example}";
+
+            txtMeaning.Text = "Bấm để xem nghĩa tiếng Việt";
+            _isMeaningShown = false;
         }
 
-        private void BtnUpdate_Click(object sender, RoutedEventArgs e)
+        private void BtnShowMeaning_Click(object sender, RoutedEventArgs e)
         {
-            if (_selectedWordId == -1)
+            // KIỂM TRA: Nếu đã hết từ, click vào ô giữa sẽ chuyển thành chữ "Tạm Biệt"
+            if (_dueWords == null || _dueWords.Count == 0 || _currentIndex >= _dueWords.Count)
             {
-                MessageBox.Show("Vui lòng chọn một từ vựng trong bảng bên dưới để sửa!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                txtMeaning.Text = "Tạm Biệt";
                 return;
             }
 
-            try
+            // Logic hiển thị nghĩa khi đang học bình thường
+            if (_currentWord != null && !_isMeaningShown)
             {
-                string eng = txtEnglish.Text.Trim();
-                string ipa = txtIpa.Text.Trim();
-                string pos = txtPos.Text.Trim();
-                string viet = txtVietnamese.Text.Trim();
-                string ex = txtExample.Text.Trim();
-
-                _db.UpdateWord(_selectedWordId, eng, ipa, pos, viet, ex);
-                MessageBox.Show("Cập nhật thông tin thành công!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
-
-                ClearInputs();
-                RefreshGrid();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi khi cập nhật từ: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
+                txtMeaning.Text = _currentWord.Vietnamese;
+                _isMeaningShown = true;
             }
         }
 
-        private void BtnDelete_Click(object sender, RoutedEventArgs e)
+        private void BtnCorrect_Click(object sender, RoutedEventArgs e)
         {
-            if (_selectedWordId == -1)
+            if (_currentWord != null)
             {
-                MessageBox.Show("Vui lòng chọn một từ vựng trong bảng trước để xóa!", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
+                _db.LogReview(_currentWord.Id, 1);
 
-            var confirmResult = MessageBox.Show($"Bạn có chắc chắn muốn xóa từ '{txtEnglish.Text}' khỏi kho lưu trữ không?", "Xác nhận xóa", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (confirmResult == MessageBoxResult.Yes)
-            {
-                try
-                {
-                    _db.DeleteWord(_selectedWordId);
-                    MessageBox.Show("Đã xóa từ vựng thành công!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
+                // Tăng chuỗi liên tiếp khi nhớ đúng
+                _sessionStreak++;
+                txtStreak.Text = $"Chuỗi: {_sessionStreak}";
 
-                    ClearInputs();
-                    RefreshGrid();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Lỗi khi xóa từ: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                _currentIndex++;
+                ShowCurrentWord();
             }
         }
 
-        private void BtnClear_Click(object sender, RoutedEventArgs e)
+        private void BtnIncorrect_Click(object sender, RoutedEventArgs e)
         {
-            ClearInputs();
-        }
-
-        // 📁 ĐOẠN XỬ LÝ ĐỌC FILE TEXT KHI BẤM NÚT TÍM
-        private void BtnImportFile_Click(object sender, RoutedEventArgs e)
-        {
-            var openFileDialog = new Microsoft.Win32.OpenFileDialog
+            if (_currentWord != null)
             {
-                Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*",
-                Title = "Chọn file từ vựng tiếng Anh của bạn"
-            };
+                _db.LogReview(_currentWord.Id, 0);
 
-            if (openFileDialog.ShowDialog() == true)
-            {
-                try
+                // Reset chuỗi về 0 khi quên từ (Giống Duolingo)
+                _sessionStreak = 0;
+                txtStreak.Text = $"Chuỗi: {_sessionStreak}";
+
+                // Thêm từ vào danh sách chưa thuộc (nếu chưa có)
+                if (!_forgottenWords.Contains((string)_currentWord.English))
                 {
-                    _db.ImportNaturalTextFile(openFileDialog.FileName);
-                    MessageBox.Show("Đã nạp toàn bộ từ vựng từ file text vào kho thành công!", "Thành công", MessageBoxButton.OK, MessageBoxImage.Information);
-                    RefreshGrid();
+                    _forgottenWords.Add((string)_currentWord.English);
                 }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Lỗi khi đọc file: " + ex.Message, "Lỗi", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+
+                // CẬP NHẬT BANNER ĐÚNG THEO YÊU CẦU CỦA BẠN
+                borderForgotBanner.Visibility = Visibility.Visible;
+                txtForgotBanner.Text = $"❌ Có {_forgottenWords.Count} từ chưa thuộc cần sửa sai cuối bài!";
+
+                // THUẬT TOÁN VÒNG LẶP: Thêm từ hiện tại vào CUỐI DANH SÁCH để hỏi lại sau
+                _dueWords.Add(_currentWord);
+
+                _currentIndex++;
+                ShowCurrentWord();
             }
         }
 
-        private void ClearInputs()
+        private void BtnRestart_Click(object sender, RoutedEventArgs e)
         {
-            _selectedWordId = -1;
-            txtEnglish.Clear();
-            txtIpa.Clear();
-            txtPos.Clear();
-            txtVietnamese.Clear();
-            txtExample.Clear();
-            dgWords.SelectedItem = null;
+            LoadWords(); // Tải lại bài học mới
+        }
+
+        private void BtnManage_Click(object sender, RoutedEventArgs e)
+        {
+            // Mở cửa sổ quản lý dưới dạng Dialog (Hộp thoại)
+            ManageWindow manageWindow = new ManageWindow();
+            manageWindow.Owner = this; // Đặt MainWindow làm chủ để căn giữa theo MainWindow
+            manageWindow.ShowDialog();
+
+            // Sau khi đóng cửa sổ quản lý, tự động tải lại danh sách từ vựng ở màn hình chính
+            LoadWords();
+        }
+
+        // Đã thêm hàm xử lý nút Thoát để hết lỗi CS0103
+        private void BtnExit_Click(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown(); // Tắt hoàn toàn ứng dụng
         }
     }
 }
