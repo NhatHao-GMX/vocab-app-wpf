@@ -1,0 +1,112 @@
+<Window x:Class="VocabAPPGUI.ManageWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Quản Lý Kho Từ Vựng" Height="610" Width="850"
+        WindowStartupLocation="CenterOwner" Background="#F7F7F7">
+
+	<Grid Margin="20">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+		</Grid.RowDefinitions>
+
+		<TextBlock Text="QUẢN LÝ DANH SÁCH TỪ VỰNG" Grid.Row="0"
+                   FontSize="20" FontWeight="Bold" Foreground="#1CB0F6"
+                   Margin="0,0,0,15" HorizontalAlignment="Center"/>
+
+		<Border Grid.Row="1" Background="White" CornerRadius="15" BorderBrush="#E5E5E5" BorderThickness="1" Padding="15" Margin="0,0,0,15">
+			<Grid>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition Height="Auto"/>
+				</Grid.RowDefinitions>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="*"/>
+					<ColumnDefinition Width="*"/>
+					<ColumnDefinition Width="*"/>
+				</Grid.ColumnDefinitions>
+
+				<StackPanel Grid.Row="0" Grid.Column="0" Margin="5">
+					<TextBlock Text="Từ tiếng Anh:" FontWeight="SemiBold" Foreground="#777777" Margin="0,0,0,5"/>
+					<TextBox x:Name="txtEnglish" Height="30" Padding="5,2" VerticalContentAlignment="Center"/>
+				</StackPanel>
+
+				<StackPanel Grid.Row="0" Grid.Column="1" Margin="5">
+					<TextBlock Text="Phiên âm (IPA):" FontWeight="SemiBold" Foreground="#777777" Margin="0,0,0,5"/>
+					<TextBox x:Name="txtIpa" Height="30" Padding="5,2" VerticalContentAlignment="Center"/>
+				</StackPanel>
+
+				<StackPanel Grid.Row="0" Grid.Column="2" Margin="5">
+					<TextBlock Text="Loại từ (v, n, adj...):" FontWeight="SemiBold" Foreground="#777777" Margin="0,0,0,5"/>
+					<TextBox x:Name="txtPos" Height="30" Padding="5,2" VerticalContentAlignment="Center"/>
+				</StackPanel>
+
+				<StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="1" Margin="5">
+					<TextBlock Text="Nghĩa tiếng Việt:" FontWeight="SemiBold" Foreground="#777777" Margin="0,0,0,5"/>
+					<TextBox x:Name="txtVietnamese" Height="30" Padding="5,2" VerticalContentAlignment="Center"/>
+				</StackPanel>
+
+				<StackPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Margin="5">
+					<TextBlock Text="Ví dụ minh họa:" FontWeight="SemiBold" Foreground="#777777" Margin="0,0,0,5"/>
+					<TextBox x:Name="txtExample" Height="30" Padding="5,2" VerticalContentAlignment="Center"/>
+				</StackPanel>
+
+				<StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,5,5">
+					<Button x:Name="btnAdd" Content="THÊM MỚI ➕" Width="110" Height="35" Background="#58CC02" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,8,0">
+						<Button.Resources>
+							<Style TargetType="Border">
+								<Setter Property="CornerRadius" Value="8"/>
+							</Style>
+						</Button.Resources>
+					</Button>
+					<Button x:Name="btnUpdate" Content="CẬP NHẬT ✏️" Width="110" Height="35" Background="#1CB0F6" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,8,0">
+						<Button.Resources>
+							<Style TargetType="Border">
+								<Setter Property="CornerRadius" Value="8"/>
+							</Style>
+						</Button.Resources>
+					</Button>
+					<Button x:Name="btnDelete" Content="XÓA TỪ ❌" Width="110" Height="35" Background="#EA2B2B" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,8,0">
+						<Button.Resources>
+							<Style TargetType="Border">
+								<Setter Property="CornerRadius" Value="8"/>
+							</Style>
+						</Button.Resources>
+					</Button>
+					<Button x:Name="btnClear" Content="LÀM TRỐNG ĐỂ NHẬP" Width="140" Height="35" Background="#777777" Foreground="White" FontWeight="Bold" BorderThickness="0" Margin="0,0,8,0">
+						<Button.Resources>
+							<Style TargetType="Border">
+								<Setter Property="CornerRadius" Value="8"/>
+							</Style>
+						</Button.Resources>
+					</Button>
+
+					<Button x:Name="btnImportFile" Content="CHÈN FILE TEXT 📁" Width="140" Height="35" Background="#9B51E0" Foreground="White" FontWeight="Bold" BorderThickness="0">
+						<Button.Resources>
+							<Style TargetType="Border">
+								<Setter Property="CornerRadius" Value="8"/>
+							</Style>
+						</Button.Resources>
+					</Button>
+				</StackPanel>
+			</Grid>
+		</Border>
+
+		<Border Grid.Row="2" Background="White" CornerRadius="15" BorderBrush="#E5E5E5" BorderThickness="1" Padding="10">
+			<DataGrid x:Name="dgWords" AutoGenerateColumns="False" IsReadOnly="True"
+                      SelectionMode="Single" GridLinesVisibility="Horizontal" RowHeaderWidth="0"
+                      Background="White" BorderThickness="0" SelectionChanged="DgWords_SelectionChanged">
+				<DataGrid.Columns>
+					<DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+					<DataGridTextColumn Header="Từ tiếng Anh" Binding="{Binding English}" Width="150" FontWeight="Bold"/>
+					<DataGridTextColumn Header="Phiên âm" Binding="{Binding Ipa}" Width="100"/>
+					<DataGridTextColumn Header="Loại" Binding="{Binding PartOfSpeech}" Width="60"/>
+					<DataGridTextColumn Header="Nghĩa tiếng Việt" Binding="{Binding Vietnamese}" Width="180"/>
+					<DataGridTextColumn Header="Ví dụ" Binding="{Binding Example}" Width="*"/>
+				</DataGrid.Columns>
+			</DataGrid>
+		</Border>
+	</Grid>
+</Window>
